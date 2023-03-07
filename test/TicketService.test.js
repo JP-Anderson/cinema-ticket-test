@@ -21,6 +21,12 @@ test('over 20 tickets triggers exception', () => {
   expect(() => service.purchaseTickets(12, new TicketTypeRequest('ADULT', 18), new TicketTypeRequest('CHILD', 1), new TicketTypeRequest('INFANT', 2))).toThrow(errorMessage)
 });
 
+test('cannot have more infants than adults', () => {
+  const errorMessage = 'cannot have more infant seats than adult seats'
+  
+  expect(() => service.purchaseTickets(1, new TicketTypeRequest('ADULT', 1), new TicketTypeRequest('INFANT', 2))).toThrow(errorMessage)
+});
+
 // a ticket order with more infants than adults ticket is invalid
 // a ticket order with child tickets is not valid without 1+ adult
 // a ticket order with infant tickets is not valid without 1+ adult

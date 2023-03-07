@@ -16,8 +16,13 @@ export default class TicketService {
     }
 
     const orderSummary = summariseTickets(ticketTypeRequests);
+    
     if (orderSummary.getAdults() + orderSummary.getChildren() + orderSummary.getInfants() > 20) {
       throw new InvalidPurchaseException('cannot purchase more than 20 tickets total');
+    }
+    
+    if (orderSummary.getInfants() > orderSummary.getAdults()) {
+      throw new InvalidPurchaseException('cannot have more infant seats than adult seats');
     } 
   }
 }
