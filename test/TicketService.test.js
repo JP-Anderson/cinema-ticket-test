@@ -3,11 +3,10 @@ import TicketService from '../src/pairtest/TicketService.js';
 const service = new TicketService();
 
 test('invalid account ID returns exception', () => {
-
   expect(() => service.purchaseTickets("10", null)).toThrow('accountId must be an integer')
-
   expect(() => service.purchaseTickets(-1, null)).toThrow('accountId must be greater than 0') 
 });
+
 
 // Test Plan
 
