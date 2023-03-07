@@ -1,5 +1,6 @@
 import TicketTypeRequest from './lib/TicketTypeRequest.js';
 import InvalidPurchaseException from './lib/InvalidPurchaseException.js';
+import { summariseTickets } from './lib/TicketSummary.js';
 
 export default class TicketService {
   /**
@@ -13,5 +14,10 @@ export default class TicketService {
     if (accountId < 0) {
       throw new TypeError('accountId must be greater than 0');
     }
+
+    const orderSummary = summariseTickets(ticketTypeRequests);
+    if (orderSummary.getAdults() + orderSummary.getChildren() + orderSummary.getInfants() > 20) {
+      throw new InvalidPurchaseException('cannot purchase more than 20 tickets total');
+    } 
   }
 }

@@ -1,4 +1,5 @@
 import TicketService from '../src/pairtest/TicketService.js';
+import TicketTypeRequest from '../src/pairtest/lib/TicketTypeRequest';
 
 const service = new TicketService();
 
@@ -12,8 +13,14 @@ test('invalid account ID returns exception', () => {
 
 /// Invalid orders 
 
-// 21 tickets is invalid when all adult tickets
-// 21 tickets is invalid with mixture of adult and infant tickets
+test('over 20 tickets triggers exception', () => {
+  const errorMessage = 'cannot purchase more than 20 tickets total'  
+
+  expect(() => service.purchaseTickets(10, new TicketTypeRequest('ADULT', 21))).toThrow(errorMessage)
+  expect(() => service.purchaseTickets(11, new TicketTypeRequest('ADULT', 15), new TicketTypeRequest('CHILD', 6))).toThrow(errorMessage)
+  expect(() => service.purchaseTickets(12, new TicketTypeRequest('ADULT', 18), new TicketTypeRequest('CHILD', 1), new TicketTypeRequest('INFANT', 2))).toThrow(errorMessage)
+});
+
 // a ticket order with more infants than adults ticket is invalid
 // a ticket order with child tickets is not valid without 1+ adult
 // a ticket order with infant tickets is not valid without 1+ adult
