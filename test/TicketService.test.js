@@ -27,7 +27,13 @@ test('cannot have more infants than adults', () => {
   expect(() => service.purchaseTickets(1, new TicketTypeRequest('ADULT', 1), new TicketTypeRequest('INFANT', 2))).toThrow(errorMessage)
 });
 
-// a ticket order with more infants than adults ticket is invalid
+test('cannot have orders without adult', () => {
+  const errorMessage = 'cannot have an order with no adult seats'
+
+  expect(() => service.purchaseTickets(11, new TicketTypeRequest('CHILD', 1))).toThrow(errorMessage)
+  expect(() => service.purchaseTickets(11, new TicketTypeRequest('INFANT', 1))).toThrow(errorMessage)
+  expect(() => service.purchaseTickets(12, new TicketTypeRequest('INFANT', 2), new TicketTypeRequest('CHILD', 6))).toThrow(errorMessage)
+});
 // a ticket order with child tickets is not valid without 1+ adult
 // a ticket order with infant tickets is not valid without 1+ adult
 
