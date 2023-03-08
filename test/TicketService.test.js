@@ -18,6 +18,10 @@ test('invalid account ID returns exception', () => {
   expect(() => service.purchaseTickets(-1, null)).toThrow('accountId must be greater than 0') 
 });
 
+test('invalid ticket type errors are captured', () => {
+  expect(() => service.purchaseTickets(1, new TicketTypeRequest('ADULT', 2), 'ADULT')).toThrow('ticketTypeRequests must contain only TicketTypeRequest objects');
+});
+
 /// Invalid orders 
 
 test('over 20 tickets triggers exception', () => {

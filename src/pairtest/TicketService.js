@@ -23,20 +23,6 @@ export default class TicketService {
     if (accountId < 0) {
       throw new TypeError('accountId must be greater than 0');
     }
-    const errors = []
-    ticketTypeRequests.forEach((tt) => {
-      if (typeof tt.getNoOfTickets !== 'function') {
-        errors.push('ticketTypeRequests must contain only TicketTypeRequest objects');
-        return;
-      }
-      if (typeof tt.getTicketType !== 'function') {
-        errors.push('ticketTypeRequests must contain only TicketTypeRequest objects');
-        return;
-      }
-    });
-    if (errors.length > 0) {
-      throw new TypeError(errors.join(';'));
-    }
   }
 
   #checkBusinessRules(orderSummary) { 

@@ -41,6 +41,12 @@ export function summariseTickets(tickets) {
   }
   const summary = summariseTickets(tickets.slice(1));
   const head = tickets[0];
+  if (typeof head.getNoOfTickets !== 'function') {
+    throw new TypeError('ticketTypeRequests must contain only TicketTypeRequest objects');
+  }
+  if (typeof head.getTicketType !== 'function') {
+    throw new TypeError('ticketTypeRequests must contain only TicketTypeRequest objects');
+  }  
   if (head.getTicketType() == 'ADULT') {
     return new TicketSummary(head.getNoOfTickets()+summary.getAdults(), summary.getChildren(), summary.getInfants());
   }
