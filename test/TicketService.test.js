@@ -1,12 +1,16 @@
 import TicketService from '../src/pairtest/TicketService.js';
 import TicketTypeRequest from '../src/pairtest/lib/TicketTypeRequest';
 import TicketPaymentService from '../src/thirdparty/paymentgateway/TicketPaymentService.js';
+import SeatReservationService from '../src/thirdparty/seatbooking/SeatReservationService.js';
 
 jest.mock('../src/thirdparty/paymentgateway/TicketPaymentService.js');
+jest.mock('../src/thirdparty/seatbooking/SeatReservationService.js');
+
 const service = new TicketService();
 
 beforeEach(() => {
   TicketPaymentService.mockClear();
+  SeatReservationService.mockClear();
 });
 
 test('invalid account ID returns exception', () => {
@@ -64,7 +68,7 @@ test('correct payment made for order with adult and infant', () => {
   const expectedPrice = 2000;
   const service = new TicketService();
   service.purchaseTickets(1, new TicketTypeRequest('ADULT', 1), new TicketTypeRequest('INFANT', 1));
-  const mockPaymentInstance = TicketPaymentService.mock.instances[0]
+  const mockPaymentInstance = TicketPaymentService.mock.instances[0];
   const mockMakePayment = mockPaymentInstance.makePayment;
   expect(mockMakePayment).toHaveBeenCalledWith(1, expectedPrice);
   expect(mockMakePayment).toHaveBeenCalledTimes(1);
@@ -72,5 +76,23 @@ test('correct payment made for order with adult and infant', () => {
 
 /// Seat reservation
 
-// correctly calculate and call number of seat allocation for order not including infants
-// correctly calculate and call number of sear allocation for order including infants (they don't use extra seat)
+test('order with adult and child correctly allocates seats', () => {
+  const expectedSeats = 2;
+  const service = new TicketService();
+  service.purchaseTickets(1, new TicketTypeRequest('ADULT', 1), new TicketTypeRequest('CHILD', 1));
+  const mockSeatingInstance = SeatReservationService.mock.instances[0];
+  const mockReserveSeats = mockSeatingInstance.reserveSeat;
+  expect(mockReserveSeats).toHaveBeenCalledWith(1, expectedSeats);
+  expect(mockReserveSeats).toHaveBeenCalledTimes(1);
+});
+
+
+test('order with adult and infant does not allocate new seat for infant', () => {
+  const expectedSeats = 1;
+  const service = new TicketService();
+  service.purchaseTickets(1, new TicketTypeRequest('ADULT', 1), new TicketTypeRequest('INFANT', 1));
+  const mockSeatingInstance = SeatReservationService.mock.instances[0];
+  const mockReserveSeats = mockSeatingInstance.reserveSeat;
+  expect(mockReserveSeats).toHaveBeenCalledWith(1, expectedSeats);
+  expect(mockReserveSeats).toHaveBeenCalledTimes(1);
+});

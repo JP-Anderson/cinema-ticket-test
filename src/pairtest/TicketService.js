@@ -3,13 +3,17 @@ import InvalidPurchaseException from './lib/InvalidPurchaseException.js';
 import { summariseTickets } from './lib/TicketSummary.js';
 import TicketPaymentService from '../thirdparty/paymentgateway/TicketPaymentService.js';
 import { calculatePriceInPence } from './lib/Pricing.js';
+import SeatReservationService from '../thirdparty/seatbooking/SeatReservationService.js';
+import { calculateSeats } from './lib/Seating.js';
 
 export default class TicketService {
   
   #paymentService;
+  #seatingService;
 
   constructor() {
     this.#paymentService = new TicketPaymentService();
+    this.#seatingService = new SeatReservationService();
   }
   
   purchaseTickets(accountId, ...ticketTypeRequests) {
@@ -35,6 +39,7 @@ export default class TicketService {
     }
 
     this.#paymentService.makePayment(accountId, calculatePriceInPence(orderSummary)); 
+    this.#seatingService.reserveSeat(accountId, calculateSeats(orderSummary));
   }
     
 }
