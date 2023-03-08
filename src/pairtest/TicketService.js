@@ -16,16 +16,30 @@ export default class TicketService {
     this.#seatingService = new SeatReservationService();
   }
   
-  purchaseTickets(accountId, ...ticketTypeRequests) {
+  #validation(accountId, ...ticketTypeRequests) {
     if (!Number.isInteger(accountId)) {
       throw new TypeError('accountId must be an integer');
     }
     if (accountId < 0) {
       throw new TypeError('accountId must be greater than 0');
     }
+    const errors = []
+    ticketTypeRequests.forEach((tt) => {
+      if (typeof tt.getNoOfTickets !== 'function') {
+        errors.push('ticketTypeRequests must contain only TicketTypeRequest objects');
+        return;
+      }
+      if (typeof tt.getTicketType !== 'function') {
+        errors.push('ticketTypeRequests must contain only TicketTypeRequest objects');
+        return;
+      }
+    });
+    if (errors.length > 0) {
+      throw new TypeError(errors.join(';'));
+    }
+  }
 
-    const orderSummary = summariseTickets(ticketTypeRequests);
-    
+  #checkBusinessRules(orderSummary) { 
     if (orderSummary.getAdults() + orderSummary.getChildren() + orderSummary.getInfants() > 20) {
       throw new InvalidPurchaseException('cannot purchase more than 20 tickets total');
     }
@@ -37,7 +51,15 @@ export default class TicketService {
     if (orderSummary.getInfants() > orderSummary.getAdults()) {
       throw new InvalidPurchaseException('cannot have more infant seats than adult seats');
     }
+  }
 
+  purchaseTickets(accountId, ...ticketTypeRequests) {
+    this.#validation(accountId, ...ticketTypeRequests)
+    
+    const orderSummary = summariseTickets(ticketTypeRequests);
+
+    this.#checkBusinessRules(orderSummary);
+    
     this.#paymentService.makePayment(accountId, calculatePriceInPence(orderSummary)); 
     this.#seatingService.reserveSeat(accountId, calculateSeats(orderSummary));
   }
