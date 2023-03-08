@@ -22,6 +22,10 @@ test('invalid ticket type errors are captured', () => {
   expect(() => service.purchaseTickets(1, new TicketTypeRequest('ADULT', 2), 'ADULT')).toThrow('ticketTypeRequests must contain only TicketTypeRequest objects');
 });
 
+test('empty orders return an error', () => {
+  expect(() => service.purchaseTickets(1, new Array())).toThrow('ticketTypeRequests must contain only TicketTypeRequest objects');
+});
+
 /// Invalid orders 
 
 test('over 20 tickets triggers exception', () => {
