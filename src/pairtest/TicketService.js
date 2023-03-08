@@ -30,7 +30,7 @@ export default class TicketService {
       throw new InvalidPurchaseException('cannot purchase more than 20 tickets total');
     }
     
-    if (orderSummary.getAdults() == 0 && orderSummary.getChildren() + orderSummary.getInfants()) {
+    if (orderSummary.getAdults() == 0) {
       throw new InvalidPurchaseException('cannot have an order with no adult seats');
     }
  
