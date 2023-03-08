@@ -1,12 +1,17 @@
 import TicketTypeRequest from './lib/TicketTypeRequest.js';
 import InvalidPurchaseException from './lib/InvalidPurchaseException.js';
 import { summariseTickets } from './lib/TicketSummary.js';
+import TicketPaymentService from '../thirdparty/paymentgateway/TicketPaymentService.js';
+import { calculatePriceInPence } from './lib/Pricing.js';
 
 export default class TicketService {
-  /**
-   * Should only have private methods other than the one below.
-   */
+  
+  #paymentService;
 
+  constructor() {
+    this.#paymentService = new TicketPaymentService();
+  }
+  
   purchaseTickets(accountId, ...ticketTypeRequests) {
     if (!Number.isInteger(accountId)) {
       throw new TypeError('accountId must be an integer');
@@ -28,5 +33,8 @@ export default class TicketService {
     if (orderSummary.getInfants() > orderSummary.getAdults()) {
       throw new InvalidPurchaseException('cannot have more infant seats than adult seats');
     }
+
+    this.#paymentService.makePayment(accountId, calculatePriceInPence(orderSummary)); 
   }
+    
 }

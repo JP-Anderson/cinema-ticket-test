@@ -1,15 +1,18 @@
 import TicketService from '../src/pairtest/TicketService.js';
 import TicketTypeRequest from '../src/pairtest/lib/TicketTypeRequest';
+import TicketPaymentService from '../src/thirdparty/paymentgateway/TicketPaymentService.js';
 
+jest.mock('../src/thirdparty/paymentgateway/TicketPaymentService.js');
 const service = new TicketService();
+
+beforeEach(() => {
+  TicketPaymentService.mockClear();
+});
 
 test('invalid account ID returns exception', () => {
   expect(() => service.purchaseTickets("10", null)).toThrow('accountId must be an integer')
   expect(() => service.purchaseTickets(-1, null)).toThrow('accountId must be greater than 0') 
 });
-
-
-// Test Plan
 
 /// Invalid orders 
 
@@ -34,14 +37,38 @@ test('cannot have orders without adult', () => {
   expect(() => service.purchaseTickets(11, new TicketTypeRequest('INFANT', 1))).toThrow(errorMessage)
   expect(() => service.purchaseTickets(12, new TicketTypeRequest('INFANT', 2), new TicketTypeRequest('CHILD', 6))).toThrow(errorMessage)
 });
-// a ticket order with child tickets is not valid without 1+ adult
-// a ticket order with infant tickets is not valid without 1+ adult
 
 /// Pricing
 
-// correctly calculate price for order with adults
-// correctly calculate price for order with adults and children
-// correctly calculate price for order with adults, children, and infants
+test('correct payment made for order with adults', () => {
+  const expectedPrice = 4000;
+  const service = new TicketService();
+  service.purchaseTickets(1, new TicketTypeRequest('ADULT', 2));
+  const mockPaymentInstance = TicketPaymentService.mock.instances[0]
+  const mockMakePayment = mockPaymentInstance.makePayment;
+  expect(mockMakePayment).toHaveBeenCalledWith(1, expectedPrice);
+  expect(mockMakePayment).toHaveBeenCalledTimes(1);
+});
+
+test('correct payment made for order with adult and child', () => {
+  const expectedPrice = 3000;
+  const service = new TicketService();
+  service.purchaseTickets(1, new TicketTypeRequest('ADULT', 1), new TicketTypeRequest('CHILD', 1));
+  const mockPaymentInstance = TicketPaymentService.mock.instances[0]
+  const mockMakePayment = mockPaymentInstance.makePayment;
+  expect(mockMakePayment).toHaveBeenCalledWith(1, expectedPrice);
+  expect(mockMakePayment).toHaveBeenCalledTimes(1);
+});
+
+test('correct payment made for order with adult and infant', () => {
+  const expectedPrice = 2000;
+  const service = new TicketService();
+  service.purchaseTickets(1, new TicketTypeRequest('ADULT', 1), new TicketTypeRequest('INFANT', 1));
+  const mockPaymentInstance = TicketPaymentService.mock.instances[0]
+  const mockMakePayment = mockPaymentInstance.makePayment;
+  expect(mockMakePayment).toHaveBeenCalledWith(1, expectedPrice);
+  expect(mockMakePayment).toHaveBeenCalledTimes(1);
+});
 
 /// Seat reservation
 
